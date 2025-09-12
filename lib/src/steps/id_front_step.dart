@@ -37,7 +37,7 @@ class _IdFrontStepState extends State<IdFrontStep> {
     _init();
     if (widget.enableTts) {
       _tts.speakFrFemale(
-        'Veuillez cadrer la partie recto de votre carte d\'identité et appuyez sur le bouton.',
+        'Veuillez cadrer la face avant de votre carte d\'identité et appuyez sur le bouton.',
       );
     }
   }

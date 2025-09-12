@@ -9,7 +9,7 @@ import 'package:video_player/video_player.dart';
 Future<File> saveAndCompressImage(
   File src, {
   int quality = 75,
-  int maxWidth = 1280,
+  int maxWidth = 720,
 }) async {
   final bytes = await src.readAsBytes();
   final image = img.decodeImage(bytes);

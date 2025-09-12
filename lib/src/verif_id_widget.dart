@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:verif_id/verif_id.dart';
 import 'steps/selfie_step.dart';
 import 'steps/id_front_step.dart';
 import 'steps/id_back_step.dart';
@@ -8,6 +9,7 @@ import 'steps/review_submit_step.dart';
 import 'utils/permissions.dart';
 import 'widgets/permission_denied_view.dart';
 import 'widgets/horizontal_stepper.dart';
+import 'utils/tts_helper.dart';
 
 /// Main public widget for the verif_id package.
 ///
@@ -19,15 +21,15 @@ import 'widgets/horizontal_stepper.dart';
 /// )
 /// ```
 class VerifId extends StatefulWidget {
-  final String? sessionId;
-  final Future<void> Function(Map<String, dynamic> result) onSubmit;
+  final String sessionId;
+  final Future<void> Function(KYCData result) onSubmit;
   final bool enableTts;
   final Locale locale;
 
   const VerifId({
     super.key,
     required this.onSubmit,
-    this.sessionId,
+    required this.sessionId,
     this.enableTts = true,
     this.locale = const Locale('fr', 'FR'),
   });
@@ -109,8 +111,15 @@ class _VerifIdState extends State<VerifId> {
         });
   }
 
-  void _nextStep() =>
-      setState(() => _currentStep = (_currentStep + 1).clamp(0, 3));
+  void _nextStep() {
+    TtsHelper.instance.stop();
+    setState(() => _currentStep = (_currentStep + 1).clamp(0, 3));
+  }
+
+  void _previousStep() {
+    TtsHelper.instance.stop();
+    setState(() => _currentStep = (_currentStep - 1).clamp(0, 3));
+  }
 
   void _onStepComplete(String key, dynamic value) {
     _data[key] = value;
@@ -119,7 +128,9 @@ class _VerifIdState extends State<VerifId> {
 
   Future<void> _handleSubmit() async {
     // Return gathered files + metadata; integrator handles upload.
-    await widget.onSubmit({..._data, 'sessionId': widget.sessionId});
+    await widget.onSubmit(
+      KYCData.fromJson({..._data, 'sessionId': widget.sessionId}),
+    );
   }
 
   @override
@@ -165,7 +176,7 @@ class _VerifIdState extends State<VerifId> {
           key: const Key('id_front_step'),
           enableTts: widget.enableTts,
           onComplete: (result) async => _onStepComplete('id_front', result),
-          onBack: () => setState(() => _currentStep = 0),
+          onBack: () => _previousStep(),
         ),
         isActive: _currentStep == 1,
         state: _currentStep > 1 ? StepState.complete : StepState.indexed,
@@ -176,7 +187,7 @@ class _VerifIdState extends State<VerifId> {
           key: const Key('id_back_step'),
           enableTts: widget.enableTts,
           onComplete: (result) async => _onStepComplete('id_back', result),
-          onBack: () => setState(() => _currentStep = 1),
+          onBack: () => _previousStep(),
         ),
         isActive: _currentStep == 2,
         state: _currentStep > 2 ? StepState.complete : StepState.indexed,
@@ -195,7 +206,7 @@ class _VerifIdState extends State<VerifId> {
               _currentStep = 0;
             });
           },
-          onBack: () => setState(() => _currentStep = 2),
+          onBack: () => _previousStep(),
         ),
         isActive: _currentStep == 3,
         state: _currentStep == 3 ? StepState.editing : StepState.indexed,

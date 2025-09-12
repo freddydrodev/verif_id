@@ -17,7 +17,7 @@ class CameraOverlay extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: Colors.white70, width: 2),
-              color: Colors.black12.withOpacity(0.0),
+              color: Colors.black12.withValues(alpha: 0),
             ),
           ),
         ),

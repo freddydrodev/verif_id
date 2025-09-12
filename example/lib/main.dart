@@ -34,7 +34,7 @@ class VerifIdDemoPage extends StatelessWidget {
           sessionId: "demo-session-123",
           onSubmit: (data) async {
             // Handle the final KYC submission (send to server, etc.)
-            debugPrint("KYC Data submitted: $data");
+            debugPrint("KYC Data submitted: ${data.toJson()}");
 
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(

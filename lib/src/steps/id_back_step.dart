@@ -33,7 +33,7 @@ class _IdBackStepState extends State<IdBackStep> {
     _init();
     if (widget.enableTts) {
       _tts.speakFrFemale(
-        'Veuillez cadrer la partie verso de votre carte d\'identité et appuyez sur le bouton.',
+        'Veuillez cadrer la face arrière de votre carte d\'identité et appuyez sur le bouton.',
       );
     }
   }
@@ -101,25 +101,28 @@ class _IdBackStepState extends State<IdBackStep> {
         Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
+            spacing: 10,
             children: [
               const Text(
                 'Photo — Verso de la carte',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
               ),
-              const SizedBox(height: 8),
-              if (widget.onBack != null)
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: TextButton.icon(
-                    onPressed: widget.onBack,
-                    icon: const Icon(Icons.arrow_back),
-                    label: const Text('Retour'),
+              Row(
+                spacing: 5,
+                children: [
+                  if (widget.onBack != null)
+                    TextButton.icon(
+                      onPressed: widget.onBack,
+                      icon: const Icon(Icons.arrow_back),
+                      label: const Text('Retour'),
+                    ),
+                  Expanded(
+                    child: StepButton(
+                      label: _busy ? 'Traitement...' : 'Prendre la photo',
+                      onTap: _busy ? null : _captureBack,
+                    ),
                   ),
-                ),
-              const SizedBox(height: 4),
-              StepButton(
-                label: _busy ? 'Traitement...' : 'Prendre la photo',
-                onTap: _busy ? null : _captureBack,
+                ],
               ),
             ],
           ),

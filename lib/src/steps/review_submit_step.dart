@@ -33,7 +33,18 @@ class ReviewSubmitStep extends StatelessWidget {
         child: Center(child: Text(label, textAlign: TextAlign.center)),
       );
     }
-    return Image.file(File(path), width: 120, height: 80, fit: BoxFit.cover);
+    return AspectRatio(
+      aspectRatio: 16 / 10,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(15),
+        child: Image.file(
+          File(path),
+          width: double.infinity,
+          height: double.infinity,
+          fit: BoxFit.cover,
+        ),
+      ),
+    );
   }
 
   @override
@@ -51,22 +62,14 @@ class ReviewSubmitStep extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const Text(
             'Vérifiez vos éléments',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 12),
-          if (onBack != null)
-            Align(
-              alignment: Alignment.centerLeft,
-              child: TextButton.icon(
-                onPressed: onBack,
-                icon: const Icon(Icons.arrow_back),
-                label: const Text('Retour'),
-              ),
-            ),
-          const SizedBox(height: 4),
+
           if (selfiePath != null)
             Column(
               children: [
@@ -76,10 +79,10 @@ class ReviewSubmitStep extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(15),
                   child: Image.file(
                     File(selfiePath),
-                    width: 160,
+                    width: 200,
                     height: 200,
                     fit: BoxFit.cover,
                   ),
@@ -93,28 +96,49 @@ class ReviewSubmitStep extends StatelessWidget {
             ),
           const SizedBox(height: 16),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            spacing: 10,
             children: [
-              Column(
-                children: [
-                  const Text('Recto'),
-                  const SizedBox(height: 8),
-                  _thumb(idFrontPath, 'Recto'),
-                ],
+              Expanded(
+                child: Column(
+                  children: [
+                    const Text('Recto'),
+                    const SizedBox(height: 8),
+                    _thumb(idFrontPath, 'Recto'),
+                  ],
+                ),
               ),
-              Column(
-                children: [
-                  const Text('Verso'),
-                  const SizedBox(height: 8),
-                  _thumb(idBackPath, 'Verso'),
-                ],
+              Expanded(
+                child: Column(
+                  children: [
+                    const Text('Verso'),
+                    const SizedBox(height: 8),
+                    _thumb(idBackPath, 'Verso'),
+                  ],
+                ),
               ),
             ],
           ),
           const SizedBox(height: 24),
-          StepButton(label: 'Soumettre', onTap: () => onSubmit()),
+          Row(
+            children: [
+              if (onBack != null)
+                TextButton.icon(
+                  onPressed: onBack,
+                  icon: const Icon(Icons.arrow_back),
+                  label: const Text('Retour'),
+                ),
+              Expanded(
+                child: StepButton(label: 'Soumettre', onTap: () => onSubmit()),
+              ),
+            ],
+          ),
+
           const SizedBox(height: 8),
-          TextButton(onPressed: onReverify, child: const Text('Recommencer')),
+          OutlinedButton.icon(
+            onPressed: onReverify,
+            icon: Icon(Icons.refresh),
+            label: const Text('Recommencer'),
+          ),
           const SizedBox(height: 16),
           const Text(
             'Remarque: la vidéo enregistrée ne sera pas lue ici mais sera incluse dans les métadonnées.',

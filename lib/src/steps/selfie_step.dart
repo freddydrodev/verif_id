@@ -38,7 +38,7 @@ class _SelfieStepState extends State<SelfieStep> with WidgetsBindingObserver {
   Timer? _countdownTimer;
   int _remaining = 0;
   final _tts = TtsHelper.instance;
-  static const int _totalSeconds = 8;
+  static const int _totalSeconds = 5;
 
   @override
   void initState() {
@@ -60,7 +60,7 @@ class _SelfieStepState extends State<SelfieStep> with WidgetsBindingObserver {
 
   Future<void> _speakIntro() async {
     await _tts.speakFrFemale(
-      'Veuillez retirer tout ce qui pourrait cacher votre visage, comme un masque, des lunettes opaques ou une casquette. Assurez-vous d’être dans un endroit bien éclairé. Placez bien votre visage à l’intérieur de l’ovale, puis appuyez sur le bouton. Une courte vidéo de huit secondes sera enregistrée, puis le selfie sera pris automatiquement.',
+      'Veuillez retirer tout ce qui pourrait cacher votre visage, comme un masque, des lunettes opaques ou une casquette. Assurez-vous d’être dans un endroit bien éclairé. Placez bien votre visage à l’intérieur de l’ovale, puis appuyez sur le bouton. Une courte vidéo de cinq secondes sera enregistrée, puis le selfie sera pris automatiquement.',
     );
   }
 
@@ -212,7 +212,7 @@ class _SelfieStepState extends State<SelfieStep> with WidgetsBindingObserver {
               ),
               const SizedBox(height: 8),
               Text(
-                'Retirez toute obstruction (masque, lunettes opaques, casquette). Assurez-vous d’un bon éclairage. Alignez votre visage dans l’ovale. Une vidéo de 8 secondes sera enregistrée, puis le selfie sera pris automatiquement.',
+                'Retirez toute obstruction (masque, lunettes opaques, casquette). Assurez-vous d’un bon éclairage. Alignez votre visage dans l’ovale. Une vidéo de 5 secondes sera enregistrée, puis le selfie sera pris automatiquement.',
                 style: const TextStyle(fontSize: 14),
                 textAlign: TextAlign.center,
               ),

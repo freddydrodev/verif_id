@@ -23,7 +23,7 @@ class _FaceOverlayPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paintDim = Paint()
-      ..color = Colors.black.withOpacity(0.55)
+      ..color = Colors.black.withValues(alpha: 0.55)
       ..style = PaintingStyle.fill;
 
     final rect = Offset.zero & size;
@@ -31,7 +31,7 @@ class _FaceOverlayPainter extends CustomPainter {
 
     // Centered oval for the face, taller and narrower to better match a face
     final ovalWidth = size.width * 0.58;
-    final ovalHeight = size.height * 0.72;
+    final ovalHeight = size.height * 0.70;
     final ovalRect = Rect.fromCenter(
       center: size.center(Offset.zero),
       width: ovalWidth,
@@ -46,7 +46,7 @@ class _FaceOverlayPainter extends CustomPainter {
 
     // Draw the oval border
     final borderPaint = Paint()
-      ..color = Colors.white.withOpacity(0.85)
+      ..color = Colors.white.withValues(alpha: 0.85)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3;
     canvas.drawOval(ovalRect, borderPaint);
