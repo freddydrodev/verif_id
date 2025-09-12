@@ -1,52 +1,9 @@
-Got it ✅
-You want the **README.md** to serve as **full documentation** for your `verif_id` package.
-That means:
-
-- 📦 Installation instructions
-- 🔑 Permissions & platform setup (Android, iOS, Web)
-- ⚙️ Parameters table with explanations
-- 🖼 Usage examples (basic & advanced)
-- 🔄 Flow diagrams (for clarity)
-- 📋 Roadmap + License
-
-Here’s a **professional README.md**:
-
----
-
-### `README.md`
-
-````markdown
-# VerifID (`verif_id`)
-
-**VerifID** is a clean and elegant Flutter package for **KYC (Know Your Customer) verification**.  
-It guides users step by step through a simple, modern, and consistent verification process:
-
-- 📸 **Selfie capture**
-- 🎥 **15s video recording** (liveness check)
-- 🪪 **ID card capture** (front and back)
-- ✅ **Review & submit**
-
-French **TTS (Text-to-Speech)** instructions with a female voice are provided at each step for guidance.
-
----
-
 ## 📦 Installation
 
 In your `pubspec.yaml`, add:
 
-```yaml
-dependencies:
-  verif_id:
-    git:
-      url: https://github.com/yourusername/verif_id.git
-      ref: main
-```
-````
-
-Then run:
-
-```sh
-flutter pub get
+```bash
+flutter pub add verif_id
 ```
 
 ---
@@ -65,8 +22,9 @@ Edit `android/app/src/main/AndroidManifest.xml`:
 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
-<application ...>
     <uses-feature android:name="android.hardware.camera" android:required="true" />
+
+<application ...>
 </application>
 ```
 
@@ -166,19 +124,19 @@ class KycPage extends StatelessWidget {
 
 ## ⚙️ Parameters
 
-| Parameter   | Type                         | Default              | Description                                                                   |
-| ----------- | ---------------------------- | -------------------- | ----------------------------------------------------------------------------- |
-| `sessionId` | `String?`                    | `null`               | Unique identifier for the verification session (useful for backend tracking). |
-| `onSubmit`  | `Future<void> Function(Map)` | **required**         | Callback fired once the user submits the verification flow.                   |
-| `enableTts` | `bool`                       | `true`               | Whether to enable French female voice TTS guidance.                           |
-| `locale`    | `Locale`                     | `Locale('fr', 'FR')` | Locale for TTS (currently optimized for French).                              |
+| Parameter   | Type                             | Default              | Description                                                                   |
+| ----------- | -------------------------------- | -------------------- | ----------------------------------------------------------------------------- |
+| `sessionId` | `String`                         | `null`               | Unique identifier for the verification session (useful for backend tracking). |
+| `onSubmit`  | `Future<void> Function(KYCData)` | **required**         | Callback fired once the user submits the verification flow.                   |
+| `enableTts` | `bool`                           | `true`               | Whether to enable French female voice TTS guidance.                           |
+| `locale`    | `Locale`                         | `Locale('fr', 'FR')` | Locale for TTS (currently optimized for French).                              |
 
 ---
 
 ## 🖼 Steps in the Flow
 
 1. **Selfie Step** → User takes a selfie.
-2. **Video Step** → User records a **15s video** for liveness detection.
+2. **Video Step** → User records a **5s video** for liveness detection.
 3. **ID Front Step** → Capture the **front of the ID card**.
 4. **ID Back Step** → Capture the **back of the ID card**.
 5. **Review & Submit** → User reviews captures, can re-verify, then submits.
@@ -190,7 +148,7 @@ class KycPage extends StatelessWidget {
 ```mermaid
 flowchart TD
     A[Start Verification] --> B[Take Selfie]
-    B --> C[Record 15s Selfie Video]
+    B --> C[Record 5s Selfie Video]
     C --> D[Capture ID Front]
     D --> E[Capture ID Back]
     E --> F[Review All Captures]
@@ -213,7 +171,7 @@ sequenceDiagram
     User->>App: Start Verification
     App->>TTS: "Prenez un selfie"
     User->>App: Capture Selfie
-    App->>TTS: "Enregistrez une vidéo de 15 secondes"
+    App->>TTS: "Enregistrez une vidéo de 5 secondes"
     User->>App: Record Video
     App->>TTS: "Scannez la face avant de votre carte"
     User->>App: Capture ID Front
@@ -249,7 +207,3 @@ sequenceDiagram
 ## ⚖️ License
 
 MIT © 2025 Freddy dro
-
-```
-
-```
