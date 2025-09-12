@@ -1,0 +1,85 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# verif_id — Cursor Rules (general.mdc)
+
+## Context
+
+The `verif_id` project is a Flutter package that implements a complete KYC (Know Your Customer) verification flow.  
+The flow must guide users through:
+
+1. Taking a selfie.
+2. Recording a short **15-second guided video** while facing the camera (video is captured but **not previewed** to the user).
+3. Capturing the **front** of their ID card.
+4. Capturing the **back** of their ID card.
+5. Reviewing all captures on a summary screen with options to **submit** or **re-verify**.
+
+The UI must be **clean, elegant, step-based (Stepper)** and feel like popular modern KYC apps.  
+Default instructions should be **spoken in French** using **female TTS (Text-to-Speech)**.
+
+---
+
+## Rules for Project Structure
+
+1. **Step isolation**: Each KYC step must live in its own Dart file under `lib/src/steps/`. Each file exports a `<Name>Step` widget.
+2. **Reusable components**: Small UI components (buttons, overlays, countdowns, etc.) must live under `lib/src/widgets/` in separate files.
+3. **Utilities**: Permissions, TTS helpers, file handling, and compression utilities go into `lib/src/utils/`.
+4. **Main entry point**: A single `VerifId` widget orchestrates the flow, exposes `onSubmit`, and allows enabling/disabling TTS.
+
+---
+
+## Rules for Dependencies
+
+- Use **up-to-date (2025)** stable Flutter packages:
+  - `camera` → for photo/video capture
+  - `permission_handler` → for camera/mic permissions
+  - `flutter_tts` → for speech
+  - `path_provider` → for file storage
+  - `image` → for compression
+- Do **not** introduce unnecessary dependencies.
+
+---
+
+## Rules for UX
+
+1. **Stepper design**: Use a clear stepper or equivalent navigation with titles and progress indicators.
+2. **French TTS**: Each step announces short instructions in **French, female voice**. Example:
+   - “Veuillez prendre un selfie en vous tenant droit, dans un endroit bien éclairé.”
+   - “Nous allons enregistrer une courte vidéo de 15 secondes. Regardez bien la caméra.”
+3. **Accessibility**: TTS must be optional (toggle).
+4. **Error handling**: If a capture fails (permissions denied, camera not available, file too small/large), show a clear French message and a retry option.
+5. **Review screen**:
+   - Show **only the selfie image** preview.
+   - Show placeholders/thumbnails for **ID front** and **ID back** images.
+   - Do **not** show or play back the recorded video.
+   - Include two buttons: “Soumettre” (Submit) and “Recommencer” (Re-verify).
+
+---
+
+## Rules for Output & Privacy
+
+1. **No auto-uploading**: The package must never upload user media.  
+   It only returns **file paths + simple metadata (duration, resolution)** to the integrator.
+2. **Submit callback**: The `onSubmit` callback returns a JSON-like map with all captures.
+3. **Privacy by design**: Always remind integrators that they are responsible for secure upload & storage.
+
+---
+
+## Rules for Maintainability
+
+1. **Consistency**: File size < 300 lines whenever possible.
+2. **Documentation**: Every public class and method must have DartDoc comments.
+3. **Testing**: Expose keys and controller hooks for widget tests.
+4. **Versioning**: Follow semantic versioning (`MAJOR.MINOR.PATCH`).
+
+---
+
+## Inspiration
+
+- Mimic flows of **popular KYC SDKs** like Onfido, iDenfy, Persona — but keep design minimal and modern.
+- Prioritize **clarity** and **trust** in UI: clean typography, neutral colors, clear CTAs.
+
+---
