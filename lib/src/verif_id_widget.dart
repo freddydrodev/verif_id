@@ -7,6 +7,7 @@ import 'steps/id_back_step.dart';
 import 'steps/review_submit_step.dart';
 import 'utils/permissions.dart';
 import 'widgets/permission_denied_view.dart';
+import 'widgets/horizontal_stepper.dart';
 
 /// Main public widget for the verif_id package.
 ///
@@ -110,8 +111,6 @@ class _VerifIdState extends State<VerifId> {
 
   void _nextStep() =>
       setState(() => _currentStep = (_currentStep + 1).clamp(0, 3));
-  void _prevStep() =>
-      setState(() => _currentStep = (_currentStep - 1).clamp(0, 3));
 
   void _onStepComplete(String key, dynamic value) {
     _data[key] = value;
@@ -166,6 +165,7 @@ class _VerifIdState extends State<VerifId> {
           key: const Key('id_front_step'),
           enableTts: widget.enableTts,
           onComplete: (result) async => _onStepComplete('id_front', result),
+          onBack: () => setState(() => _currentStep = 0),
         ),
         isActive: _currentStep == 1,
         state: _currentStep > 1 ? StepState.complete : StepState.indexed,
@@ -176,6 +176,7 @@ class _VerifIdState extends State<VerifId> {
           key: const Key('id_back_step'),
           enableTts: widget.enableTts,
           onComplete: (result) async => _onStepComplete('id_back', result),
+          onBack: () => setState(() => _currentStep = 1),
         ),
         isActive: _currentStep == 2,
         state: _currentStep > 2 ? StepState.complete : StepState.indexed,
@@ -194,6 +195,7 @@ class _VerifIdState extends State<VerifId> {
               _currentStep = 0;
             });
           },
+          onBack: () => setState(() => _currentStep = 2),
         ),
         isActive: _currentStep == 3,
         state: _currentStep == 3 ? StepState.editing : StepState.indexed,
@@ -203,18 +205,9 @@ class _VerifIdState extends State<VerifId> {
     return SafeArea(
       child: Column(
         children: [
+          // Horizontal header + single mounted content for active step
           Expanded(
-            child: Stepper(
-              physics: const ClampingScrollPhysics(),
-              currentStep: _currentStep,
-              onStepContinue: _nextStep,
-              onStepCancel: _prevStep,
-              onStepTapped: (i) => setState(() => _currentStep = i),
-              steps: steps,
-              controlsBuilder: (context, details) {
-                return const SizedBox.shrink(); // we use buttons inside steps
-              },
-            ),
+            child: HorizontalStepper(currentStep: _currentStep, steps: steps),
           ),
         ],
       ),

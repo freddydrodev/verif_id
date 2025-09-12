@@ -12,6 +12,7 @@ class ReviewSubmitStep extends StatelessWidget {
   final Map<String, dynamic>? idBack;
   final Future<void> Function() onSubmit;
   final VoidCallback onReverify;
+  final VoidCallback? onBack;
 
   const ReviewSubmitStep({
     super.key,
@@ -20,6 +21,7 @@ class ReviewSubmitStep extends StatelessWidget {
     this.selfie,
     this.idFront,
     this.idBack,
+    this.onBack,
   });
 
   Widget _thumb(String? path, String label) {
@@ -55,6 +57,16 @@ class ReviewSubmitStep extends StatelessWidget {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 12),
+          if (onBack != null)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: onBack,
+                icon: const Icon(Icons.arrow_back),
+                label: const Text('Retour'),
+              ),
+            ),
+          const SizedBox(height: 4),
           if (selfiePath != null)
             Column(
               children: [

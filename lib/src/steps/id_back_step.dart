@@ -9,11 +9,13 @@ import '../utils/tts_helper.dart';
 class IdBackStep extends StatefulWidget {
   final Future<void> Function(Map<String, dynamic> result) onComplete;
   final bool enableTts;
+  final VoidCallback? onBack;
 
   const IdBackStep({
     super.key,
     required this.onComplete,
     this.enableTts = true,
+    this.onBack,
   });
 
   @override
@@ -44,7 +46,7 @@ class _IdBackStepState extends State<IdBackStep> {
     );
     _controller = CameraController(
       back,
-      ResolutionPreset.medium,
+      ResolutionPreset.low,
       enableAudio: false,
     );
     await _controller!.initialize();
@@ -105,6 +107,16 @@ class _IdBackStepState extends State<IdBackStep> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 8),
+              if (widget.onBack != null)
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton.icon(
+                    onPressed: widget.onBack,
+                    icon: const Icon(Icons.arrow_back),
+                    label: const Text('Retour'),
+                  ),
+                ),
+              const SizedBox(height: 4),
               StepButton(
                 label: _busy ? 'Traitement...' : 'Prendre la photo',
                 onTap: _busy ? null : _captureBack,

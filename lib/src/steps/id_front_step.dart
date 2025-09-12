@@ -13,11 +13,13 @@ import '../utils/tts_helper.dart';
 class IdFrontStep extends StatefulWidget {
   final Future<void> Function(Map<String, dynamic> result) onComplete;
   final bool enableTts;
+  final VoidCallback? onBack;
 
   const IdFrontStep({
     super.key,
     required this.onComplete,
     this.enableTts = true,
+    this.onBack,
   });
 
   @override
@@ -48,7 +50,7 @@ class _IdFrontStepState extends State<IdFrontStep> {
     );
     _controller = CameraController(
       back,
-      ResolutionPreset.medium,
+      ResolutionPreset.low,
       enableAudio: false,
     );
     await _controller!.initialize();
@@ -103,15 +105,28 @@ class _IdFrontStepState extends State<IdFrontStep> {
         Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
+            spacing: 10,
             children: [
               const Text(
                 'Photo — Recto de la carte',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
               ),
-              const SizedBox(height: 8),
-              StepButton(
-                label: _busy ? 'Traitement...' : 'Prendre la photo',
-                onTap: _busy ? null : _captureFront,
+              Row(
+                spacing: 5,
+                children: [
+                  if (widget.onBack != null)
+                    TextButton.icon(
+                      onPressed: widget.onBack,
+                      icon: const Icon(Icons.arrow_back),
+                      label: const Text('Retour'),
+                    ),
+                  Expanded(
+                    child: StepButton(
+                      label: _busy ? 'Traitement...' : 'Prendre la photo',
+                      onTap: _busy ? null : _captureFront,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

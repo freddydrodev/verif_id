@@ -14,13 +14,16 @@ class StepButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final btn = ElevatedButton(
+    final btn = ElevatedButton.icon(
       onPressed: onTap,
       style: ElevatedButton.styleFrom(
-        minimumSize: const Size.fromHeight(48),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        backgroundColor: Theme.of(context).primaryColor,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
       ),
-      child: Text(label),
+      icon: Text(label),
+      label: Icon(Icons.arrow_forward),
     );
 
     return btn;
