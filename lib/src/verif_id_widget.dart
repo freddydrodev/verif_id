@@ -53,6 +53,12 @@ class _VerifIdState extends State<VerifId> {
     _requestPermissions();
   }
 
+  @override
+  void dispose() {
+    TtsHelper.instance.stop();
+    super.dispose();
+  }
+
   Future<void> _requestPermissions() async {
     try {
       if (kDebugMode) {
