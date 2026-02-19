@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_tts/flutter_tts.dart';
 
 /// Simple singleton TTS helper preconfigured for French female voice.
@@ -5,11 +7,13 @@ import 'package:flutter_tts/flutter_tts.dart';
 class TtsHelper {
   TtsHelper._internal() {
     _tts = FlutterTts();
+    _initCompleter = Completer<void>();
     _init();
   }
 
   static final TtsHelper instance = TtsHelper._internal();
   late final FlutterTts _tts;
+  late final Completer<void> _initCompleter;
 
   Future<void> _init() async {
     try {
@@ -28,13 +32,16 @@ class TtsHelper {
       await _tts.setSpeechRate(0.45);
       await _tts.setVolume(1.0);
       await _tts.setPitch(1.0);
+      _initCompleter.complete();
     } catch (_) {
-      // ignore errors; fallback to defaults
+      // complete even on error so speak doesn't hang
+      _initCompleter.complete();
     }
   }
 
   Future<void> speakFrFemale(String text) async {
     try {
+      await _initCompleter.future;
       await _tts.speak(text);
     } catch (_) {}
   }

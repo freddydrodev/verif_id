@@ -2,18 +2,17 @@ import 'dart:async';
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-// import 'package:path_provider/path_provider.dart';
-// import 'package:uuid/uuid.dart';
 import '../widgets/face_overlay.dart';
 import '../widgets/step_button.dart';
 import '../utils/file_utils.dart';
 import '../utils/tts_helper.dart';
+import '../utils/verif_id_constants.dart';
 
 /// SelfieStep:
 /// - initializes camera front
 /// - shows preview (camera)
 /// - takes a high-quality selfie image on button press
-/// - simultaneously records a 15s guided video (background). The user is told we are recording.
+/// - simultaneously records a 5s guided video (background). The user is told we are recording.
 /// - returns a Map: { 'selfie_path': ..., 'video_path': ..., 'selfie_meta': {...}, 'video_meta': {...} }
 class SelfieStep extends StatefulWidget {
   final Future<void> Function(Map<String, dynamic> result) onComplete;
@@ -60,7 +59,7 @@ class _SelfieStepState extends State<SelfieStep> with WidgetsBindingObserver {
 
   Future<void> _speakIntro() async {
     await _tts.speakFrFemale(
-      'Veuillez retirer tout ce qui pourrait cacher votre visage, comme un masque, des lunettes opaques ou une casquette. Assurez-vous d’être dans un endroit bien éclairé. Placez bien votre visage à l’intérieur de l’ovale, puis appuyez sur le bouton. Une courte vidéo de cinq secondes sera enregistrée, puis le selfie sera pris automatiquement.',
+      'Veuillez retirer tout ce qui pourrait cacher votre visage, comme un masque, des lunettes opaques ou une casquette. Assurez-vous d\'être dans un endroit bien éclairé. Placez bien votre visage à l\'intérieur de l\'ovale, puis appuyez sur le bouton. Une courte vidéo de cinq secondes sera enregistrée, puis le selfie sera pris automatiquement.',
     );
   }
 
@@ -85,7 +84,6 @@ class _SelfieStepState extends State<SelfieStep> with WidgetsBindingObserver {
           'Impossible d\'initialiser la caméra. Vérifiez les permissions.',
         );
       }
-      // show error UI
     }
   }
 
@@ -107,7 +105,6 @@ class _SelfieStepState extends State<SelfieStep> with WidgetsBindingObserver {
         }
       });
 
-      // wait duration then stop and return the video file
       await Future.delayed(duration);
       if (_controller != null && _controller!.value.isRecordingVideo) {
         final file = await _controller!.stopVideoRecording();
@@ -126,21 +123,19 @@ class _SelfieStepState extends State<SelfieStep> with WidgetsBindingObserver {
   }
 
   Future<void> _takeSelfieAndRecord() async {
-    if (_controller == null || !_controller!.value.isInitialized || _busy)
+    if (_controller == null || !_controller!.value.isInitialized || _busy) {
       return;
+    }
     setState(() => _busy = true);
     try {
-      // 1) record video for 15s with visible progress
       await _startRecordingVideoAndAwaitStop(
         const Duration(seconds: _totalSeconds),
       );
 
-      // 2) after recording finishes, take selfie
       final selfie = await _controller!.takePicture();
       final compressed = await saveAndCompressImage(File(selfie.path));
       _lastSelfie = XFile(compressed.path);
 
-      // prepare metadata
       final selfieMeta = await getImageMetadata(File(_lastSelfie!.path));
       final videoMeta = _videoPath != null
           ? await getVideoMetadata(File(_videoPath!))
@@ -171,24 +166,33 @@ class _SelfieStepState extends State<SelfieStep> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
     if (_controller == null || !_controller!.value.isInitialized) {
       return const Center(child: CircularProgressIndicator());
     }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        // ── Camera preview ──
         Expanded(
           child: Stack(
             fit: StackFit.expand,
             children: [
               CameraPreview(_controller!),
-              const FaceOverlay(), // face-shaped guide
+              const FaceOverlay(),
+
+              // Recording indicator pill
               if (_isRecording)
                 Positioned(
-                  top: 16,
-                  left: 16,
+                  top: VerifIdConstants.sectionGap,
+                  left: VerifIdConstants.sectionGap,
                   child: _RecordingIndicator(remaining: _remaining),
                 ),
+
+              // Progress bar
               if (_isRecording)
                 Positioned(
                   bottom: 0,
@@ -202,24 +206,73 @@ class _SelfieStepState extends State<SelfieStep> with WidgetsBindingObserver {
             ],
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.all(16),
+
+        // ── Instruction card ──
+        Container(
+          decoration: BoxDecoration(
+            color: cs.surface,
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(VerifIdConstants.cardRadius),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 12,
+                offset: const Offset(0, -4),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.fromLTRB(
+            VerifIdConstants.pagePadding,
+            VerifIdConstants.pagePadding,
+            VerifIdConstants.pagePadding,
+            VerifIdConstants.pagePadding + 4,
+          ),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                'Prenez un selfie',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              // Icon badge + title row
+              Row(
+                children: [
+                  Container(
+                    width: VerifIdConstants.iconBadgeSize,
+                    height: VerifIdConstants.iconBadgeSize,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: cs.primaryContainer,
+                    ),
+                    child: Icon(
+                      Icons.camera_front_rounded,
+                      size: 20,
+                      color: cs.onPrimaryContainer,
+                    ),
+                  ),
+                  const SizedBox(width: VerifIdConstants.itemGap),
+                  Expanded(
+                    child: Text(
+                      'Prenez un selfie',
+                      style: tt.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: VerifIdConstants.tinyGap),
+
+              // Instruction text
               Text(
-                'Retirez toute obstruction (masque, lunettes opaques, casquette). Assurez-vous d’un bon éclairage. Alignez votre visage dans l’ovale. Une vidéo de 5 secondes sera enregistrée, puis le selfie sera pris automatiquement.',
-                style: const TextStyle(fontSize: 14),
-                textAlign: TextAlign.center,
+                'Placez votre visage dans l\'ovale. Une video de 5 s sera enregistree, puis le selfie sera pris.',
+                style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: VerifIdConstants.sectionGap),
+
+              // Capture button
               StepButton(
                 key: const Key('selfie_take_button'),
-                label: _busy ? 'Traitement...' : 'Prendre le selfie',
+                label: 'Prendre le selfie',
+                isCircular: true,
+                loading: _busy,
                 onTap: _busy ? null : _takeSelfieAndRecord,
               ),
             ],
@@ -230,25 +283,44 @@ class _SelfieStepState extends State<SelfieStep> with WidgetsBindingObserver {
   }
 }
 
+// ── Recording indicator pill ──
 class _RecordingIndicator extends StatelessWidget {
   final int remaining;
   const _RecordingIndicator({required this.remaining});
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.black54,
-        borderRadius: BorderRadius.circular(8),
+        color: cs.surface.withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(VerifIdConstants.badgeRadius),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.15),
+            blurRadius: 8,
+          ),
+        ],
       ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.fiber_manual_record, color: Colors.red, size: 14),
-          const SizedBox(width: 6),
+          Container(
+            width: VerifIdConstants.recordingDotSize,
+            height: VerifIdConstants.recordingDotSize,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.red,
+            ),
+          ),
+          const SizedBox(width: 8),
           Text(
-            'Enregistrement - $remaining s',
-            style: const TextStyle(color: Colors.white),
+            'Enregistrement - ${remaining}s',
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),
@@ -256,6 +328,7 @@ class _RecordingIndicator extends StatelessWidget {
   }
 }
 
+// ── Recording progress bar ──
 class _RecordingProgress extends StatelessWidget {
   final int totalSeconds;
   final int remainingSeconds;

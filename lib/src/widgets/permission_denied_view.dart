@@ -1,52 +1,97 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import '../utils/verif_id_constants.dart';
 
 class PermissionDeniedView extends StatelessWidget {
   final VoidCallback onRetry;
   const PermissionDeniedView({super.key, required this.onRetry});
 
-  Future<void> _openAppSettings() async {
+  Future<void> _openSettings() async {
     await openAppSettings();
   }
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(VerifIdConstants.pagePadding),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.lock_outline, size: 64, color: Colors.redAccent),
-            const SizedBox(height: 12),
-            const Text(
-              'Permissions nécessaires',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            // Icon badge
+            Container(
+              width: VerifIdConstants.iconBadgeSizeLg,
+              height: VerifIdConstants.iconBadgeSizeLg,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: cs.errorContainer,
+              ),
+              child: Icon(
+                Icons.camera_alt_outlined,
+                size: 36,
+                color: cs.onErrorContainer,
+              ),
             ),
-            const SizedBox(height: 8),
-            const Text(
-              'L\'application a besoin d\'accès à la caméra et au microphone pour fonctionner correctement.',
+            const SizedBox(height: VerifIdConstants.sectionGap),
+
+            Text(
+              'Permissions necessaires',
+              style: tt.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
-            const Text(
-              'Veuillez autoriser les permissions dans les paramètres de l\'application.',
+            const SizedBox(height: VerifIdConstants.tinyGap),
+
+            Text(
+              'L\'application a besoin d\'acces a la camera et au microphone pour la verification d\'identite.',
+              style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12, color: Colors.grey),
             ),
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: onRetry,
-                  child: const Text('Réessayer'),
+            const SizedBox(height: 28),
+
+            // Primary: Retry
+            SizedBox(
+              width: double.infinity,
+              height: VerifIdConstants.buttonHeight,
+              child: FilledButton.icon(
+                onPressed: onRetry,
+                icon: const Icon(Icons.refresh_rounded, size: 20),
+                label: const Text(
+                  'Autoriser l\'acces',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
-                OutlinedButton(
-                  onPressed: _openAppSettings,
-                  child: const Text('Paramètres'),
+                style: FilledButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                      VerifIdConstants.buttonRadius,
+                    ),
+                  ),
                 ),
-              ],
+              ),
+            ),
+            const SizedBox(height: VerifIdConstants.itemGap),
+
+            // Secondary: Open settings
+            SizedBox(
+              width: double.infinity,
+              height: VerifIdConstants.buttonHeight,
+              child: OutlinedButton.icon(
+                onPressed: _openSettings,
+                icon: const Icon(Icons.settings_outlined, size: 20),
+                label: const Text(
+                  'Ouvrir les parametres',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                style: OutlinedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                      VerifIdConstants.buttonRadius,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),

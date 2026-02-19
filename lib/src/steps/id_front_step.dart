@@ -5,6 +5,7 @@ import '../widgets/camera_overlay.dart';
 import '../widgets/step_button.dart';
 import '../utils/file_utils.dart';
 import '../utils/tts_helper.dart';
+import '../utils/verif_id_constants.dart';
 
 /// IdFrontStep:
 /// - opens camera (rear ideally)
@@ -64,8 +65,9 @@ class _IdFrontStepState extends State<IdFrontStep> {
   }
 
   Future<void> _captureFront() async {
-    if (_controller == null || !_controller!.value.isInitialized || _busy)
+    if (_controller == null || !_controller!.value.isInitialized || _busy) {
       return;
+    }
     setState(() => _busy = true);
     try {
       final picture = await _controller!.takePicture();
@@ -88,46 +90,102 @@ class _IdFrontStepState extends State<IdFrontStep> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
     if (_controller == null || !_controller!.value.isInitialized) {
       return const SizedBox(
         height: 300,
         child: Center(child: CircularProgressIndicator()),
       );
     }
+
     return Column(
       children: [
+        // ── Camera preview ──
         Expanded(
           child: Stack(
             fit: StackFit.expand,
             children: [CameraPreview(_controller!), const CameraOverlay()],
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            spacing: 10,
-            children: [
-              const Text(
-                'Photo — Recto de la carte',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+
+        // ── Instruction card ──
+        Container(
+          decoration: BoxDecoration(
+            color: cs.surface,
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(VerifIdConstants.cardRadius),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 12,
+                offset: const Offset(0, -4),
               ),
+            ],
+          ),
+          padding: const EdgeInsets.fromLTRB(
+            VerifIdConstants.pagePadding,
+            VerifIdConstants.pagePadding,
+            VerifIdConstants.pagePadding,
+            VerifIdConstants.pagePadding + 4,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Icon badge + title
               Row(
-                spacing: 5,
                 children: [
-                  if (widget.onBack != null)
-                    TextButton.icon(
-                      onPressed: widget.onBack,
-                      icon: const Icon(Icons.arrow_back),
-                      label: const Text('Retour'),
+                  Container(
+                    width: VerifIdConstants.iconBadgeSize,
+                    height: VerifIdConstants.iconBadgeSize,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: cs.primaryContainer,
                     ),
+                    child: Icon(
+                      Icons.credit_card_rounded,
+                      size: 20,
+                      color: cs.onPrimaryContainer,
+                    ),
+                  ),
+                  const SizedBox(width: VerifIdConstants.itemGap),
                   Expanded(
-                    child: StepButton(
-                      label: _busy ? 'Traitement...' : 'Prendre la photo',
-                      onTap: _busy ? null : _captureFront,
+                    child: Text(
+                      'Recto de la carte',
+                      style: tt.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ],
               ),
+              const SizedBox(height: VerifIdConstants.tinyGap),
+
+              Text(
+                'Cadrez la face avant de votre carte d\'identite dans le cadre, puis appuyez sur le bouton.',
+                style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+              ),
+              const SizedBox(height: VerifIdConstants.sectionGap),
+
+              // Capture button
+              StepButton(
+                label: 'Prendre la photo',
+                isCircular: true,
+                loading: _busy,
+                onTap: _busy ? null : _captureFront,
+              ),
+              if (widget.onBack != null) ...[
+                const SizedBox(height: VerifIdConstants.tinyGap),
+                TextButton(
+                  onPressed: widget.onBack,
+                  child: Text(
+                    'Retour',
+                    style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+                  ),
+                ),
+              ],
             ],
           ),
         ),

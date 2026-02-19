@@ -1,6 +1,6 @@
 name: verif_id
 description: A clean and elegant Flutter package for KYC verification (selfie, 5s video, ID front/back, review + submit). French TTS instructions by default.
-version: 0.0.2
+version: 0.0.3
 homepage: https://github.com/freddydrodev/verif_id
 repository: https://github.com/freddydrodev/verif_id
 issue_tracker: https://github.com/freddydrodev/verif_id/issues
