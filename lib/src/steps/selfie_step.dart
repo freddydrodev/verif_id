@@ -72,7 +72,7 @@ class _SelfieStepState extends State<SelfieStep> with WidgetsBindingObserver {
       );
       _controller = CameraController(
         front,
-        ResolutionPreset.low,
+        ResolutionPreset.medium,
         enableAudio: true,
       );
       await _controller!.initialize();
@@ -132,14 +132,25 @@ class _SelfieStepState extends State<SelfieStep> with WidgetsBindingObserver {
         const Duration(seconds: _totalSeconds),
       );
 
+      // Video is mandatory — block if recording failed
+      if (_videoPath == null || _videoPath!.isEmpty) {
+        if (widget.enableTts) {
+          await _tts.speakFrFemale(
+            'L\'enregistrement vidéo a échoué. Veuillez vérifier que les permissions caméra et microphone sont activées, puis réessayez.',
+          );
+        }
+        if (mounted) {
+          setState(() => _busy = false);
+        }
+        return;
+      }
+
       final selfie = await _controller!.takePicture();
       final compressed = await saveAndCompressImage(File(selfie.path));
       _lastSelfie = XFile(compressed.path);
 
       final selfieMeta = await getImageMetadata(File(_lastSelfie!.path));
-      final videoMeta = _videoPath != null
-          ? await getVideoMetadata(File(_videoPath!))
-          : null;
+      final videoMeta = await getVideoMetadata(File(_videoPath!));
 
       final result = {
         'selfie_path': _lastSelfie!.path,

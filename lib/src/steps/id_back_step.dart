@@ -47,7 +47,7 @@ class _IdBackStepState extends State<IdBackStep> {
     );
     _controller = CameraController(
       back,
-      ResolutionPreset.low,
+      ResolutionPreset.high,
       enableAudio: false,
     );
     await _controller!.initialize();
@@ -67,7 +67,11 @@ class _IdBackStepState extends State<IdBackStep> {
     setState(() => _busy = true);
     try {
       final picture = await _controller!.takePicture();
-      final compressed = await saveAndCompressImage(File(picture.path));
+      final compressed = await saveAndCompressImage(
+        File(picture.path),
+        quality: 90,
+        maxWidth: 1280,
+      );
       final meta = await getImageMetadata(File(compressed.path));
       widget.onComplete({
         'id_back_path': compressed.path,
